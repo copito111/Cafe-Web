@@ -1,0 +1,23 @@
+# Secrets and local configuration
+.env
+.env.*
+!.env.example
+frontend/.env
+frontend/.env.*
+!frontend/.env.example
+
+# Dependencies and generated output
+frontend/node_modules/
+frontend/dist/
+backend/vendor/
+backend/laravel/vendor/
+backend/laravel/node_modules/
+backend/laravel/public/build/
+coverage/
+*.log
+
+# Local editor and operating-system files
+.vscode/
+.idea/
+.DS_Store
+Thumbs.db

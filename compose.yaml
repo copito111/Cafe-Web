@@ -1,0 +1,62 @@
+services:
+  database:
+    image: mysql:8.4
+    container_name: cafe-web-database
+    environment:
+      MYSQL_DATABASE: ${MYSQL_DATABASE}
+      MYSQL_USER: ${MYSQL_USER}
+      MYSQL_PASSWORD: ${MYSQL_PASSWORD}
+      MYSQL_ROOT_PASSWORD: ${MYSQL_ROOT_PASSWORD}
+    volumes:
+      - cafe-web-mysql-data:/var/lib/mysql
+      - ./database/migrations/001_initial_schema.sql:/docker-entrypoint-initdb.d/01-schema.sql:ro
+      - ./database/seeds/001_demo_catalog.sql:/docker-entrypoint-initdb.d/02-demo-catalog.sql:ro
+    healthcheck:
+      test: ["CMD-SHELL", "mysqladmin ping --host=127.0.0.1 --user=root --password=$$MYSQL_ROOT_PASSWORD --silent"]
+      interval: 3s
+      timeout: 5s
+      retries: 30
+      start_period: 10s
+
+  api:
+    build:
+      context: ./backend/laravel
+      dockerfile: Dockerfile
+    container_name: cafe-web-api
+    env_file: .env.docker
+    environment:
+      APP_ENV: local
+      APP_DEBUG: "true"
+      APP_KEY: ${APP_KEY}
+      APP_URL: http://localhost:8000
+      CAFE_ADMIN_PASSWORD: ${CAFE_ADMIN_PASSWORD}
+      CACHE_STORE: database
+      DB_CONNECTION: mysql
+      DB_DATABASE: ${MYSQL_DATABASE}
+      DB_HOST: database
+      DB_PASSWORD: ${MYSQL_PASSWORD}
+      DB_PORT: "3306"
+      DB_USERNAME: ${MYSQL_USER}
+      FRONTEND_URL: ${FRONTEND_URL}
+      OPENAI_API_KEY: ${OPENAI_API_KEY:-}
+      OPENAI_MODEL: ${OPENAI_MODEL:-gpt-4o-mini}
+      QUEUE_CONNECTION: database
+      SESSION_DRIVER: file
+    ports:
+      - "127.0.0.1:8000:8000"
+    depends_on:
+      database:
+        condition: service_healthy
+    command:
+      - sh
+      - -c
+      - |
+        set -e
+        php artisan migrate --force
+        php artisan db:seed --class=SaasPlanSeeder --force
+        php artisan db:seed --class=SaasDemoSubscriptionSeeder --force
+        php artisan db:seed --class=AdminUserSeeder --force
+        php artisan serve --host=0.0.0.0 --port=8000
+
+volumes:
+  cafe-web-mysql-data:
