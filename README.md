@@ -1,78 +1,98 @@
 # Cafe Web
 
-Cafe Web es una plataforma SaaS open source para la operación diaria de cafeterías: catálogo, pedidos, clientes, ventas, inventario y analítica.
+[![License: MIT](https://img.shields.io/badge/License-MIT-green.svg)](LICENSE)
+[![React](https://img.shields.io/badge/React-18-61DAFB?logo=react)](https://react.dev/)
+[![Laravel](https://img.shields.io/badge/Laravel-12-FF2D20?logo=laravel)](https://laravel.com/)
+[![MySQL](https://img.shields.io/badge/MySQL-8.4-4479A1?logo=mysql)](https://www.mysql.com/)
 
-Es una base útil para cafeterías pequeñas, food trucks, locales con servicio rápido o proyectos educativos que quieran aprender arquitectura moderna de producto con React + Laravel + MySQL.
+Cafe Web es una plataforma SaaS open source para la operación diaria de cafeterías. Incluye catálogo digital, carrito de compras, pedidos, seguimiento, panel de operación y asistente de recomendaciones para clientes.
 
-## Estado
+Es una base útil para cafeterías pequeñas, locales de especialidad, food trucks, proyectos de portafolio o equipos que quieren aprender una arquitectura moderna con React, Laravel y MySQL.
 
-Frontend React funcional y API REST Laravel 12 para catálogo, pedidos y operación. El esquema MySQL inicial y los datos de demostración están en `database/`.
+## Características
 
-## Arquitectura
+- Catálogo de productos con categorías y búsqueda
+- Carrito de compra y flujo de checkout
+- Seguimiento de pedidos por código y teléfono
+- Panel de administración para cambiar estados y disponibilidad
+- Asistente de cafe con recomendaciones locales
+- Base de datos y datos demo listos para ejecutar en Docker
+- Arquitectura con frontend, backend y API separadas
 
-- `frontend/`: React y Vite; cliente web responsive, desplegado en Vercel.
-- `backend/`: API REST en PHP 8.2+, organizada por responsabilidad; desplegada en un proveedor que ejecute PHP.
-- `database/`: migraciones y esquema MySQL, versionados con el backend.
-- `documentation/`: decisiones de arquitectura, instalación y QA.
-- MySQL administrado: persistencia transaccional. El frontend solo se comunica con la API; nunca recibe credenciales de base de datos.
+## Stack tecnológico
 
-Vercel no ejecuta esta API PHP como runtime nativo. El despliegue usa dos servicios: Vercel para el frontend y un hosting PHP para la API. Configura `VITE_API_BASE_URL` con la URL pública de esa API.
+- Frontend: React + Vite
+- Backend: Laravel 12 + PHP 8.2+
+- Base de datos: MySQL 8.4
+- Contenedores: Docker Compose
+- Despliegue: Vercel para frontend y hosting PHP para API
 
-## Licencia
+## Estructura del proyecto
 
-Este proyecto está disponible bajo la licencia MIT. Puedes usarlo, modificarlo y compartirlo libremente con atribución.
+- frontend/: aplicación web del cliente
+- backend/laravel/: API REST y lógica de negocio
+- database/: esquema y datos demo
+- documentation/: arquitectura y decisiones técnicas
+- scripts/: automatización local de entorno
 
-## Inicio local
+## Estado del proyecto
 
-Requisitos: Docker Desktop y Node.js LTS. Desde la raíz del repositorio, levanta MySQL y la API PHP/Laravel:
+Este repositorio está pensado como una base práctica y funcional para una cafetería digital. Ya incluye flujo principal operativo, así como una API REST preparada para continuar ampliando funcionalidades.
+
+## Inicio rápido
+
+Requisitos:
+
+- Docker Desktop
+- Node.js LTS
+
+Desde la raíz del proyecto:
 
 ```powershell
 .\scripts\start-local-stack.ps1
 ```
 
-El script genera `.env.docker` con credenciales aleatorias locales; el archivo está excluido de Git. El acceso demo usa `admin@cafeaurora.local`; consulta `CAFE_ADMIN_PASSWORD` en ese archivo para iniciar sesión. La API queda en `http://localhost:8000` y permite el origen local `http://127.0.0.1:5173`.
-
-En otra terminal, instala y levanta el frontend:
+Esto levanta MySQL y la API Laravel en Docker. Luego inicia el frontend en otra terminal:
 
 ```powershell
 npm install --prefix frontend
 npm run dev --prefix frontend
 ```
 
-Para ejecutar las pruebas backend de forma aislada, usa una tercera terminal:
+## Variables de entorno
 
-```powershell
-.\scripts\test-backend.ps1
-```
+El proyecto genera automaticamente un archivo local .env.docker para entorno de desarrollo. No se sube a Git por seguridad.
 
-La URL del backend puede cambiarse con `VITE_API_BASE_URL`. Configura `VITE_WHATSAPP_PHONE` con el número real en formato internacional (solo dígitos) si la ficha de cafetería no tiene teléfono. Sin un número configurado, el asistente guía por el catálogo y los pedidos, pero no muestra un enlace WhatsApp ficticio. Para apagar el stack: `docker compose --env-file .env.docker down`. Para conservar la base, no uses `-v` al apagarlo. Consulta [la arquitectura y las decisiones](documentation/architecture.md) para el modelo de dominios y las decisiones de despliegue.
+Para activar respuestas generativas del asistente, agrega tu API key de OpenAI en .env.docker y reinicia la API.
 
-El asistente también funciona sin IA generativa con recomendaciones locales del catálogo. Para activar respuestas generativas, agrega `OPENAI_API_KEY` a `.env.docker` y, opcionalmente, cambia `OPENAI_MODEL`; después reinicia la API:
+## Arquitectura
 
-```powershell
-docker compose --env-file .env.docker up --build -d api
-```
+La aplicación separa claramente:
 
-La clave se usa exclusivamente en Laravel y nunca se publica como variable `VITE_*`. Las respuestas se limitan al catálogo disponible; si el proveedor no está configurado o no responde, la guía local sigue activa.
+- Frontend para experiencia de cliente
+- API para catálogo, pedidos y administración
+- MySQL para persistencia transaccional
+- Docker para entorno local reproducible
 
-## Fases
+## Licencia
 
-1. Arquitectura y estructura (actual).
-2. Modelo relacional y esquema MySQL.
-3. API REST PHP y seguridad.
-4. Experiencia de cliente y catálogo web.
-5. CafeBot y recomendaciones.
-6. Panel de operación y analítica.
-7. Pruebas funcionales, seguridad y QA.
-8. Preparación y guía de despliegue.
+Este proyecto se distribuye bajo la licencia MIT. Puedes usarlo, modificarlo, aprender de él y compartirlo con atribución.
 
 ## ¿Para quién sirve?
 
-- Cafeterías pequeñas o emergentes que quieren una primera versión digital.
-- Proyectos de práctica o portafolio.
-- Equipos que quieran reutilizar una base de SaaS para operación diaria.
-- Personas que buscan un ejemplo claro de monorepo con frontend, backend y base de datos.
+- Cafeterías pequeñas o emergentes
+- Proyectos de portafolio y aprendizaje
+- Equipos que quieran una base realista de SaaS para operación diaria
+- Desarrolladores que buscan un ejemplo claro de monorepo con frontend, backend y base de datos
 
 ## Contribuciones
 
-Las contribuciones son bienvenidas. Si quieres mejorar el proyecto, haz un fork, crea tu rama y abre un pull request con tus cambios.
+Las contribuciones son bienvenidas. Haz un fork, crea tu rama y abre un pull request con mejoras, correcciones o nuevas funcionalidades.
+
+## Autor
+
+Cafe Web
+
+## Contacto
+
+Puedes usar este repositorio como base para tu proyecto, un portafolio o una solución real para una cafetería.
