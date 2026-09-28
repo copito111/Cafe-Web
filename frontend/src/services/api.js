@@ -1,7 +1,12 @@
-const apiBaseUrl = import.meta.env.VITE_API_BASE_URL || 'http://localhost:8000';
+const configuredApiBaseUrl = import.meta.env.VITE_API_BASE_URL?.trim();
+const apiBaseUrl = configuredApiBaseUrl || (import.meta.env.DEV ? 'http://localhost:8000' : '');
 
 export function getFriendlyApiError(error, fallback) {
   if (error instanceof TypeError) {
+    if (!configuredApiBaseUrl && import.meta.env.PROD) {
+      return 'La API no está configurada. Agrega VITE_API_BASE_URL en Vercel con la URL pública del backend.';
+    }
+
     return 'No pudimos conectar con el servicio. Comprueba tu conexión e inténtalo de nuevo.';
   }
 
